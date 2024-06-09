@@ -13,4 +13,4 @@ RUN pip install paho-mqtt requests flask
 EXPOSE 5005
 
 # Run the Python script when the container launches
-CMD ["python", "sub_with_time.py"]
+CMD ["python", "edge.py"]

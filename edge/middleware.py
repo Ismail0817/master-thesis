@@ -15,16 +15,12 @@ app = Flask(__name__)
 
 @app.route('/container_api', methods=['POST'])
 def handle_container_api_request():
-    # Logic for handling another API request
-    # ...
+    # Extract the request data
     request_data = request.get_json()
-    # print(request_data)
-    # return {'result': 'Data received in container API'}
-    # Extract the request type from the request data
+    
+    
+    # Extract the message from the request data
     res = request_data.get('message')
-    # task = request_data.get('task')
-    # print(res)
-    # print(task)
     if task_type == 'task1':
         response = requests.post('http://192.168.10.148:5003/api', json=request_data)
         print(response.text)
@@ -35,7 +31,6 @@ def handle_container_api_request():
         payload = {'message': "task 2 started", 'task': 'task2'}
         response = requests.post('http://192.168.10.148:5003/api', json=payload)
         print(response.text)
-        # print("task2 is due")
     elif task_type == 'task3':
         payload = {'message': res, 'task': 'task3'}
 
@@ -56,23 +51,20 @@ def handle_container_api_request():
         payload = {'message': "task 2 started", 'task': 'task3'}
         response = requests.post('http://192.168.10.148:5003/api', json=payload)
         print(response.text)
-        # print("task2 is due")
     return {'result': 'Data received in middleware API'}
 
 @app.route('/api', methods=['POST'])
 def handle_api_request():
     request_data = request.get_json()
     global task_type
-    # Extract the request type from the request data
+    # Extract the task type from the request data
     task_type = request_data.get('message')
     time = request_data.get('time')
-    # print(task_type)
+    
 
     if task_type == 'task1' or task_type == 'task2' or task_type == 'task3':
         # Perform task 1
         result = negotiate_edge()
-        # print(result) 
-        # return {'result': 'data received in fog middleware API'}  
         if result == "success":
             threading.Thread(target=perform_task1, args=(task_type,time)).start()
             return {'result': 'Task 1 deployed successfully wait for result'}
@@ -82,26 +74,15 @@ def handle_api_request():
         # Invalid request type
         return {'error': 'Invalid request type'}
 
-    # return {'result': 'Task 2 deployed successfully wait for result'}
-
-def perform_task1(task_type,collection_time):
-    # Logic for task 1
-    # ...
-
-    # print("inside thread\nsending data to fog container\n")
+def perform_task1(task_type,collection_time):    
     print("Data Collection Time:", collection_time)
     print("Task:", task_type, "\n")
-
-
     # Monitor initial CPU and memory usage before orchestration
     initial_cpu, initial_memory = monitor_resources()
-    # print(f"Initial CPU Usage: {initial_cpu}%")
-    # print(f"Initial Memory Usage: {initial_memory}%")
     print("initial usage")
     print("Timestamp, Human Readable, CPU Usage %, Memory Usage %")
     print(time.time(),',',datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S.%f'),',', initial_cpu,',', initial_memory)
-    # print(f"Initial usage - Timestamp: {time.time()}, CPU Usage: {initial_cpu}%, Memory Usage: {initial_memory}%")
-
+    
     print("\nStarting orchestration...")
     start_time = time.time()
 
@@ -122,7 +103,6 @@ def perform_task1(task_type,collection_time):
     flask_ready = False
 
     print("\nTimestamp, Human Readable, CPU Usage %, Memory Usage %")
-
     while not job_ready or not service_ready:
         job_ready = check_job_status(namespace, job_name) and check_pod_status(namespace, job_name)
         service_ready = check_service_status(namespace, service_name)
@@ -130,21 +110,15 @@ def perform_task1(task_type,collection_time):
         # Collect CPU and memory usage data during orchestration
         cpu_usage, memory_usage = monitor_resources()
         print(time.time(),',',datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S.%f'),',', cpu_usage,',', memory_usage)
-        # print(f"During Orchestration - Timestamp: {time.time()}, CPU Usage: {cpu_usage}%, Memory Usage: {memory_usage}%")
-
-        # if not job_ready or not service_ready:
-        #     print("Waiting for Job and Service to be ready...")
-            # time.sleep(5)  # Wait before checking again
 
     print("\nJob and Service are ready. Checking Flask server status...")
 
     end_time = time.time()
     orchestration_time = end_time - start_time
-    # print("Orchestration Time:", orchestration_time) 
 
     flask_time = time.time()
 
-    # time.sleep(1)
+    
     # Fetch the Pod name
     pod_name = None
     pods = core_v1.list_namespaced_pod(namespace=namespace, label_selector=f"job-name={job_name}")
@@ -157,11 +131,7 @@ def perform_task1(task_type,collection_time):
     while not flask_ready:
         flask_ready = check_flask_ready(namespace, pod_name, flask_ready_log_entry)
         cpu_usage, memory_usage = monitor_resources()
-        # print(f"During Flask deploy - Timestamp: {time.time()}, CPU Usage: {cpu_usage}%, Memory Usage: {memory_usage}%")
         print(time.time(),',', datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S.%f'),',', cpu_usage,',', memory_usage)
-        # if not flask_ready:
-        #     print("Waiting for Flask server to be ready...")
-            # time.sleep(5)  # Wait before checking again
 
     print("\nFlask server is ready. Proceeding to send data.")
     
@@ -172,7 +142,7 @@ def perform_task1(task_type,collection_time):
     print("flask ready time:", flask_ready_time)
     print("Orchestration Time + Flask ready time:", orchestration_and_flask_ready_time)  
 
-    # time.sleep(1)
+    
     # URL of the Flask API endpoint
     url = 'http://192.168.1.145:30234/collect'
 
@@ -200,20 +170,9 @@ def perform_task1(task_type,collection_time):
             print(f"Error sending data: {e}, retrying...")
             retry_count += 1
 
-    # # Send the POST request
-    # response = requests.post(url, headers=headers, data=json.dumps(data))
-
-    # # Print the response from the server
-    # # print(response.status_code)
-    # print(response.json())
-
-    
-        
-
-
 
 def negotiate_edge():
-    script_path = "/home/admin/github/thesis/new/edge/bash.sh" 
+    script_path = "/home/admin/github/master-thesis/edge/bash.sh" 
     script_output = run_shell_script(script_path)
     
     # Split the string into lines
@@ -242,11 +201,6 @@ def negotiate_edge():
             negotiation = "success"
         else:
             print(f"Node: {node_name} -> CPU usage is {values['CPU%']} and memory usage is {values['MEMORY%']}")
-
-    # # negotiation with fog
-    # response_from_fog = send_api_request_fog('http://192.168.10.147:5000/api', "negotiate")
-    # print(response_from_fog)
-    # return jsonify({'reply': negotiation, 'data': node_data})
     return negotiation
 
 def run_shell_script(script_path):
@@ -272,10 +226,6 @@ def deploy_pod():
     with open("manifests/job.yaml", "r") as file:
         job_manifest = yaml.safe_load(file)
         try:
-            # # Set the desired name for the deployment and pod
-            # deployment_manifest['metadata']['name'] = "edge-deployment"
-            # deployment_manifest['spec']['template']['metadata']['name'] = "edge-pod"
-            
             # Create the job in the "default" namespace
             batch_v1.create_namespaced_job(
                 body=job_manifest, namespace="default"
@@ -283,8 +233,6 @@ def deploy_pod():
             print("Deployment created successfully!")
         except Exception as e:
             print(f"Error creating Deployment: {e}")
-
-            # print("pod deployed")
     
 def deploy_service():
     # Load kubeconfig file to authenticate with the Kubernetes cluster
@@ -334,10 +282,6 @@ def check_pod_status(namespace, job_name):
             if pod.status.phase == 'Running':
                 # print(f"Pod {pod.metadata.name} is running.")
                 return True
-            # elif pod.status.phase == 'Pending':
-            #     print(f"Pod {pod.metadata.name} is pending.")
-            # elif pod.status.phase == 'Failed':
-                # print(f"Pod {pod.metadata.name} has failed.")
         return False
     except ApiException as e:
         print(f"Exception when listing Pods: {e}")

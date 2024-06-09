@@ -10,6 +10,5 @@ COPY . /app
 # Install dependencies
 RUN pip install flask pandas scikit-learn
 
-
 # Run the Python script when the container launches
 CMD ["python", "fog.py"]

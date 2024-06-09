@@ -8,8 +8,6 @@ app = Flask(__name__)
 def preprocess():
     data = request.get_json()
     print(data, flush=True)
-    # return jsonify(data)
-
 
     # # Convert data to a DataFrame
     df = pd.DataFrame(data)
