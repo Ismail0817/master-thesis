@@ -9,7 +9,7 @@ client = mqtt.Client()
 client.connect(broker_address, 1883, 60)
 
 # Read CSV file
-csv_file = "interleaved_output.csv"  # Replace with your CSV file path
+csv_file = "interleaved_output.csv"  
 df = pd.read_csv(csv_file, delimiter=',')  # Use semicolon as delimiter
 
 print (df.head())
