@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloud
+spec:
+  selector:
+    matchLabels:
+      app: cloud
+  template:
+    metadata:
+      labels:
+        app: cloud
+      name: cloud
+    spec:
+      containers:
+      - name: edge
+        image: ismailshojeeb/cloud:v2
+        ports:
+        - containerPort: 5005

@@ -1,0 +1,16 @@
+# Use the official Python image as a base image
+FROM python:3.9-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the current directory contents into the container at /app
+COPY . /app
+
+# Install dependencies
+RUN pip install paho-mqtt requests flask
+
+EXPOSE 5005
+
+# Run the Python script when the container launches
+CMD ["python", "sub_with_time.py"]

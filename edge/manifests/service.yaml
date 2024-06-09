@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: run-once-job-edge-service
+spec:
+  selector:
+    job-name: run-once-job-edge
+  ports:
+  - protocol: TCP
+    port: 5005
+    targetPort: 5005
+    nodePort: 30234
+  type: LoadBalancer  # or NodePort if LoadBalancer is not available in your cluster
+
+    

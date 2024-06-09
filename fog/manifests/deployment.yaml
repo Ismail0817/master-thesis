@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fog
+spec:
+  selector:
+    matchLabels:
+      app: fog
+  template:
+    metadata:
+      labels:
+        app: fog
+      name: fog
+    spec:
+      containers:
+      - name: edge
+        image: ismailshojeeb/fog:v3
+        ports:
+        - containerPort: 5005
